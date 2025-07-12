@@ -11,15 +11,6 @@ on:
         description: 'With release'
         required: true
         type: boolean
-      target:
-        description: 'Build target (linux/mac/all)'
-        required: false
-        default: 'all'
-        type: choice
-        options:
-          - linux
-          - mac
-          - all
 
 env:
   # Necessary for most environments as build failure can occur due to OOM issues
