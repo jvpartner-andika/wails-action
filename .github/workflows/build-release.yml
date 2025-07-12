@@ -25,9 +25,9 @@ jobs:
       fail-fast: false
       matrix:
         build:
-          - name: 'Linux'
-            platform:  'linux/amd64'
-            os: 'ubuntu-22.04'
+          # - name: 'Linux'
+          #   platform:  'linux/amd64'
+          #   os: 'ubuntu-22.04'
           - name: 'Mac'
             platform:  'darwin/amd64'
             os: 'macos-latest'
@@ -69,71 +69,71 @@ jobs:
         shell: bash
         run: wails build -clean -platform ${{ matrix.build.platform }}
 
-      - name: Convert Icon PNG to ICNS (Mac)
-        if: runner.os == 'macOS'
-        run: |
-          ICON_SRC="build/appicon.png"
-          ICONSET_DIR="temp.iconset"
-          ICON_DEST="build/darwin/icon.icns"
+      # - name: Convert Icon PNG to ICNS (Mac)
+      #   if: runner.os == 'macOS'
+      #   run: |
+      #     ICON_SRC="build/appicon.png"
+      #     ICONSET_DIR="temp.iconset"
+      #     ICON_DEST="build/darwin/icon.icns"
 
-          mkdir -p "$ICONSET_DIR"
+      #     mkdir -p "$ICONSET_DIR"
 
-          # Buat berbagai ukuran PNG (diperlukan oleh iconutil)
-          sips -z 16 16     "$ICON_SRC" --out "$ICONSET_DIR/icon_16x16.png"
-          sips -z 32 32     "$ICON_SRC" --out "$ICONSET_DIR/icon_16x16@2x.png"
-          sips -z 32 32     "$ICON_SRC" --out "$ICONSET_DIR/icon_32x32.png"
-          sips -z 64 64     "$ICON_SRC" --out "$ICONSET_DIR/icon_32x32@2x.png"
-          sips -z 128 128   "$ICON_SRC" --out "$ICONSET_DIR/icon_128x128.png"
-          sips -z 256 256   "$ICON_SRC" --out "$ICONSET_DIR/icon_128x128@2x.png"
-          sips -z 256 256   "$ICON_SRC" --out "$ICONSET_DIR/icon_256x256.png"
-          sips -z 512 512   "$ICON_SRC" --out "$ICONSET_DIR/icon_256x256@2x.png"
-          sips -z 512 512   "$ICON_SRC" --out "$ICONSET_DIR/icon_512x512.png"
-          cp "$ICON_SRC" "$ICONSET_DIR/icon_512x512@2x.png"
+      #     # Buat berbagai ukuran PNG (diperlukan oleh iconutil)
+      #     sips -z 16 16     "$ICON_SRC" --out "$ICONSET_DIR/icon_16x16.png"
+      #     sips -z 32 32     "$ICON_SRC" --out "$ICONSET_DIR/icon_16x16@2x.png"
+      #     sips -z 32 32     "$ICON_SRC" --out "$ICONSET_DIR/icon_32x32.png"
+      #     sips -z 64 64     "$ICON_SRC" --out "$ICONSET_DIR/icon_32x32@2x.png"
+      #     sips -z 128 128   "$ICON_SRC" --out "$ICONSET_DIR/icon_128x128.png"
+      #     sips -z 256 256   "$ICON_SRC" --out "$ICONSET_DIR/icon_128x128@2x.png"
+      #     sips -z 256 256   "$ICON_SRC" --out "$ICONSET_DIR/icon_256x256.png"
+      #     sips -z 512 512   "$ICON_SRC" --out "$ICONSET_DIR/icon_256x256@2x.png"
+      #     sips -z 512 512   "$ICON_SRC" --out "$ICONSET_DIR/icon_512x512.png"
+      #     cp "$ICON_SRC" "$ICONSET_DIR/icon_512x512@2x.png"
 
-          # Convert to .icns
-          iconutil -c icns "$ICONSET_DIR" -o "$ICON_DEST"
+      #     # Convert to .icns
+      #     iconutil -c icns "$ICONSET_DIR" -o "$ICON_DEST"
 
-          # Remove temp icon
-          rm -rf temp.iconset
+      #     # Remove temp icon
+      #     rm -rf temp.iconset
 
-      - name: Create .app bundle manually (Mac)
-        if: runner.os == 'macOS'
-        run: |
-          APP_NAME="wails-action"
-          APP_VERSION="${{ inputs.version }}"
-          APP_DIR="build/bin/${APP_NAME}.app"
-          BIN_PATH="build/bin/${APP_NAME}"
+      # - name: Create .app bundle manually (Mac)
+      #   if: runner.os == 'macOS'
+      #   run: |
+      #     APP_NAME="wails-action"
+      #     APP_VERSION="${{ inputs.version }}"
+      #     APP_DIR="build/bin/${APP_NAME}.app"
+      #     BIN_PATH="build/bin/${APP_NAME}"
 
-          mkdir -p "${APP_DIR}/Contents/MacOS"
-          mkdir -p "${APP_DIR}/Contents/Resources"
+      #     mkdir -p "${APP_DIR}/Contents/MacOS"
+      #     mkdir -p "${APP_DIR}/Contents/Resources"
 
-          # Copy binary
-          cp "${BIN_PATH}" "${APP_DIR}/Contents/MacOS/${APP_NAME}"
-          cp "build/darwin/info.plist" "${APP_DIR}/Contents/Info.plist"
+      #     # Copy binary
+      #     cp "${BIN_PATH}" "${APP_DIR}/Contents/MacOS/${APP_NAME}"
+      #     cp "build/darwin/info.plist" "${APP_DIR}/Contents/Info.plist"
 
-          # Optional: copy icon
-          if [ -f build/darwin/icon.icns ]; then
-            cp build/darwin/icon.icns "${APP_DIR}/Contents/Resources/"
-          fi
+      #     # Optional: copy icon
+      #     if [ -f build/darwin/icon.icns ]; then
+      #       cp build/darwin/icon.icns "${APP_DIR}/Contents/Resources/"
+      #     fi
 
-      - name: Install create-dmg (Mac)
-        if: runner.os == 'macOS'
-        run: brew install create-dmg
+      # - name: Install create-dmg (Mac)
+      #   if: runner.os == 'macOS'
+      #   run: brew install create-dmg
 
-      - name: Create DMG (Mac)
-        if: runner.os == 'macOS'
-        run: |
-          create-dmg \
-            --volname "wails-action" \
-            --volicon "build/darwin/icon.icns" \
-            --window-pos 200 120 \
-            --window-size 800 400 \
-            --icon-size 100 \
-            --icon "wails-action.app" 200 190 \
-            --hide-extension "wails-action.app" \
-            --app-drop-link 600 185 \
-            "Mac-${{ inputs.version }}.dmg" \
-            "build/bin/wails-action.app"
+      # - name: Create DMG (Mac)
+      #   if: runner.os == 'macOS'
+      #   run: |
+      #     create-dmg \
+      #       --volname "wails-action" \
+      #       --volicon "build/darwin/icon.icns" \
+      #       --window-pos 200 120 \
+      #       --window-size 800 400 \
+      #       --icon-size 100 \
+      #       --icon "wails-action.app" 200 190 \
+      #       --hide-extension "wails-action.app" \
+      #       --app-drop-link 600 185 \
+      #       "Mac-${{ inputs.version }}.dmg" \
+      #       "build/bin/wails-action.app"
 
 
       - name: Compress Binary
