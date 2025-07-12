@@ -1,4 +1,4 @@
-module wails-action2
+module wails-action
 
 go 1.23
 

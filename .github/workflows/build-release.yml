@@ -11,6 +11,15 @@ on:
         description: 'With release'
         required: true
         type: boolean
+      target:
+        description: 'Build target (linux/mac/all)'
+        required: false
+        default: 'all'
+        type: choice
+        options:
+          - linux
+          - mac
+          - all
 
 env:
   # Necessary for most environments as build failure can occur due to OOM issues
@@ -99,7 +108,7 @@ jobs:
       - name: Create .app bundle manually (Mac)
         if: runner.os == 'macOS'
         run: |
-          APP_NAME="wails-action2"
+          APP_NAME="wails-action"
           APP_VERSION="${{ inputs.version }}"
           APP_DIR="build/bin/${APP_NAME}.app"
           BIN_PATH="build/bin/${APP_NAME}"
@@ -124,16 +133,16 @@ jobs:
         if: runner.os == 'macOS'
         run: |
           create-dmg \
-            --volname "wails-action2" \
+            --volname "wails-action" \
             --volicon "build/darwin/icon.icns" \
             --window-pos 200 120 \
             --window-size 800 400 \
             --icon-size 100 \
-            --icon "wails-action2.app" 200 190 \
-            --hide-extension "wails-action2.app" \
+            --icon "wails-action.app" 200 190 \
+            --hide-extension "wails-action.app" \
             --app-drop-link 600 185 \
             "Mac-${{ inputs.version }}.dmg" \
-            "build/bin/wails-action2.app"
+            "build/bin/wails-action.app"
 
 
       - name: Compress Binary
